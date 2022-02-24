@@ -23,6 +23,7 @@ public class SalaDeChat {
 	 * Arraylist para almacenar las personas usuarias conectadas
 	 */
 	protected static ArrayList<String> _conectados = new ArrayList<String>();
+	protected static List<PrintWriter> writers = new ArrayList<PrintWriter>();
 	
 	/**
 	 * Método principal
@@ -34,7 +35,6 @@ public class SalaDeChat {
 		//variables
 		int port;
 		ServerSocket serverSocket;
-		List<PrintWriter> writers = new ArrayList<PrintWriter>();
 		Socket socket;
 		BufferedReader reader;
 		String textoNuevaConexion;
@@ -133,7 +133,7 @@ public class SalaDeChat {
 				}*/
 				
 				//Inicalizamos rye recibiendo el stream de entrada del socket al que nos conectamos
-				ryr = new RecibeYReenvia(socket.getInputStream(), out, writers, textoNuevaConexion);
+				ryr = new RecibeYReenvia(socket.getInputStream(), out, textoNuevaConexion);
 			
 			} catch (IOException e) {
 				
@@ -179,13 +179,13 @@ class RecibeYReenvia implements Runnable {
 	 * @param writers Objeto de la clase List que almacena objetos de tipo PrintWriter. Contiene todos los canales de salida de datos hacia los clientes con los que se tiene conexión, para reenviar los datos recibidos por un cliente
 	 * @param textoNuevaConexion String. Texto que se mostrará en el resto de clientes cuando se conecte un nuevo cliente
 	 */
-	public RecibeYReenvia(InputStream is, PrintWriter pw, List<PrintWriter> writers, String textoNuevaConexion) {
+	public RecibeYReenvia(InputStream is, PrintWriter pw, String textoNuevaConexion) {
 		
 		//Creamos nuevo buffer de lectura asociado al stream de entrada pasado como argumento
 		_reader = new BufferedReader(new InputStreamReader(is));
 		//Almacenamos la ventana de chat en nuestra instancia de Chat
 		_pw = pw;
-		_writers = writers;
+		_writers = SalaDeChat.writers;
 		_textoNuevaConexion = textoNuevaConexion;
 	}
 	
@@ -282,6 +282,14 @@ class RecibeYReenvia implements Runnable {
 						
 						if(cliente.checkError()) System.out.println("\t-- Error en el último envío --");
 					}
+					
+				}
+				
+				//En el caso de que el texto contenga DESCONECTADO, se cierra el stream de datos y se elimina del arraylist de printwriters
+				if(leido.contains("DESCONECTADO")) {
+					
+					_pw.close();
+					_writers.remove(_pw);
 					
 				}
 				
