@@ -296,28 +296,39 @@ public class Chat extends JFrame {
 	/**
 	 * Método principal. Carga del programa.
 	 * 
-	 * @param args String. Se espera parámetro con el nombre con el que se concta el cliente.
+	 * @param args String. Se esperan como argumentos: host, puerto y nombre de usuario/a
 	 */
 	public static void main(String []args) {
 		
-		//args = new String[]{"Pedro"};
-		
 		//Variables
 		Socket socket;//socket
-		String host = "localhost";//nombre del host
+		String host;//nombre del host
 		String nombreUsuario;//nombre de usuario/a
-		int port = 4567;//puerto
+		int port;//puerto
 		
 		//Comprobamos si se reciben el número de argumentos correcto
-		if(args.length<1) {
+		if(args.length<3) {
 			
 			//si no es así, se muestra error y se para el programa
-			System.err.println("Faltan el nombre de usuario/a.");
+			System.err.println("Faltan los siguientes datos: host, puerto y nombre de usuario/a.");
+			return;
+		}
+		
+		//Se almacena la dirección del servidor
+		host = args[0];
+		
+		try {
+			
+			port = Integer.parseInt(args[1]);
+			
+		}catch (NumberFormatException e) {
+			
+			System.err.println("Puerto inválido");
 			return;
 		}
 		
 		//Se almacena el tercer argumento en nombreUsuario
-		nombreUsuario = args[0];
+		nombreUsuario = args[2];
 		
 		try {
 			
